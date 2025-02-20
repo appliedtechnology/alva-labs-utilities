@@ -1,0 +1,45 @@
+name: Publish test result to Alva Labs
+
+description: Workflow to publish generated test results from a candidate's code test to Alva Labs
+
+on:
+  workflow_call:
+    inputs:
+      test-results:
+        type: string
+        description: A json array of the test results
+        required: true
+        default: "[]"
+
+jobs:
+  send-to-alva:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 1
+    if: ${{ inputs.test-results != '[]' }}
+
+    steps:
+      - name: Check if current repo is a template
+        id: not-template
+        continue-on-error: true # Even if this is a template repo, we don't want this job to fail
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api repos/${{ github.repository }} | jq --exit-status '.is_template == false'
+
+      - name: Publish test results if candidate repo, i.e. not a template repo
+        if: steps.not-template.outcome == 'success'
+        run: |
+          curl --retry 3 \
+            -H "Authorization: Bearer ${{ secrets.AUTO_SCORE_TOKEN }}" \
+            --json '{ "assignmentRepository": "${{ github.repository }}", "results": ${{ inputs.test-results }} }' \
+            ${{ vars.AUTO_SCORE_WEBHOOK_URL }}
+
+      - name: Add job summary to test taker
+        if: steps.not-template.outcome == 'success'
+        run: |
+          echo "### Test results have been successfully sent out! :rocket:" >> $GITHUB_STEP_SUMMARY
+          echo "You can now go to [Alva Labs](https://app.alvalabs.io) and submit your test"  >> $GITHUB_STEP_SUMMARY
+          echo "Good luck! :four_leaf_clover:" >> $GITHUB_STEP_SUMMARY
+
+      - name: Add job summary to template creator
+        if: steps.not-template.outcome == 'failure'
+        run: echo "Send-out ignored since this is template repo" >> $GITHUB_STEP_SUMMARY
