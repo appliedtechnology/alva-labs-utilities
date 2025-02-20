@@ -1,0 +1,20 @@
+name: Run tests and send results to Alva Labs
+
+on:
+  pull_request:
+    branches:
+      - main
+  push:
+  workflow_dispatch:
+
+jobs:
+  test:
+    name: Run tests
+    uses: appliedtechnology/Alva-Labs-Utilities/.github/workflows/generate_test-results_dotnet.yml@main
+
+  publish:
+    name: Publish tests
+    needs: test
+    uses: appliedtechnology/Alva-Labs-Utilities/.github/workflows/publish_test-results_alva-labs.yml@main
+    with:
+      test-results: ${{ needs.test.outputs.test-results }}
