@@ -41,7 +41,7 @@ jobs:
         run: |
           echo test_results=$(
             cat $(find ./TestResults/*.trx -print -quit) |
-            yq -p=xml -o=json '[ .TestRun.Results.UnitTestResult[] | { "name": .+@testName, "result": .+@outcome } ]'
+            yq -p=xml -o=json '[ .TestRun.Results.UnitTestResult[] | { "test": .+@testName, "result": .+@outcome } ]'
           ) >> $GITHUB_OUTPUT
 
       - name: Save cache
