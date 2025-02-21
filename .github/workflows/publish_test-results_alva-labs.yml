@@ -29,6 +29,7 @@ jobs:
         if: steps.not-template.outcome == 'success'
         run: |
           curl --retry 3 \
+            --fail-with-body
             -H "Authorization: Bearer ${{ secrets.AUTO_SCORE_TOKEN }}" \
             --json '{ "assignmentRepository": "${{ github.repository }}", "results": [${{ inputs.test-results }}] }' \
             ${{ vars.AUTO_SCORE_WEBHOOK_URL }}
