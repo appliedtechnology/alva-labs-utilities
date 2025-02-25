@@ -1,7 +1,5 @@
 name: Setup code-test enviroment
 
-description: Update the readme and create a work branch for applicants to work on
-
 on:
   workflow_call:
     inputs:
@@ -10,8 +8,7 @@ on:
         description: The workflow file to be deleted once the setup is complete
         required: true
         default: "setup.yml"
-
-
+        
 jobs:
   setup:
     name: Create work branch
@@ -21,31 +18,13 @@ jobs:
       pull-requests: write
 
     steps:
-      - name: Check if current repo is a template
-        id: not-template
-        continue-on-error: true # Even if this is a template repo, we don't want this job to fail
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: gh api repos/${{ github.repository }} | jq --exit-status '.is_template == false'
-
       - name: Checkout code
-        if: steps.not-template.outcome == 'success'
         uses: actions/checkout@v4
 
       - name: Delete workflow file
-        if: steps.not-template.outcome == 'success'
         run: rm .github/workflows/${{ inputs.workflow-to-delete }}
 
-      - name: Update readme
-        if: steps.not-template.outcome == 'success'
-        run: |
-          sed -i -e '
-            s#{{dev-branch}}#[Dev Branch](${{ github.server_url }}/${{github.repository}}/tree/dev)#
-            s#{{pull-request-link}}#[Pull-Request](${{ github.server_url }}/${{github.repository}}/compare/main...dev?expand=1)#
-          ' readme.md
-
       - name: Create a development branch and commit changes to the repo
-        if: steps.not-template.outcome == 'success'
         env:
           name: 👾 SaltBot
           email: noreply@salt.dev
