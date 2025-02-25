@@ -1,0 +1,38 @@
+name: Generates JavaScript test results
+
+description: Workflow to generate JavaScript test results from a candidate's code test to be sent onward to Alva Labs
+
+on:
+  workflow_call:
+    outputs:
+      test-results:
+        description: An array of the test results
+        value: ${{ jobs.javascript-test.outputs.test_results }}
+
+jobs:
+  javascript-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+    continue-on-error: true # We expect this job to fail, but still need the results to be published
+
+    env:
+      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
+    outputs:
+      test_results: ${{ steps.get-results.outputs.test_results }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+
+      - name: Run tests
+        run: node --test --test-reporter=./utils/json-reporter.js --test-reporter-destination=test-results.json **/*.test.js
+
+      - name: Output test results
+        id: get-results
+        if: ${{ !cancelled() }}
+        run: echo test_results=$(cat ./test-results.json) >> $GITHUB_OUTPUT
