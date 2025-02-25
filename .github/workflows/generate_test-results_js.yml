@@ -15,8 +15,6 @@ jobs:
     timeout-minutes: 2
     continue-on-error: true # We expect this job to fail, but still need the results to be published
 
-    env:
-      NUGET_PACKAGES: ${{ github.workspace }}/.nuget/packages
     outputs:
       test_results: ${{ steps.get-results.outputs.test_results }}
 
