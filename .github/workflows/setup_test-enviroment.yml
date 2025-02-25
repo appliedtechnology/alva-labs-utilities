@@ -1,0 +1,49 @@
+name: Setup code-test enviroment
+
+description: Update the readme and create a work branch for applicants to work on
+
+on:
+  workflow_call:
+    inputs:
+      workflow-to-delete:
+        type: string
+        description: The workflow file to be deleted once the setup is complete
+        required: true
+        default: "setup.yml"
+
+
+jobs:
+  setup:
+    name: Create work branch
+    runs-on: ubuntu-24.04
+    permissions:
+      contents: write
+      pull-requests: write
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Delete workflow file
+        run: rm .github/workflows/${{ inputs.workflow-to-delete }}
+
+      - name: Update readme
+        run: |
+          sed -i -e '
+            s#{{dev-branch}}#[Dev Branch](${{ github.server_url }}/${{github.repository}}/tree/dev)#
+            s#{{pull-request-link}}#[Pull-Request](${{ github.server_url }}/${{github.repository}}/compare/main...dev?expand=1)#
+          ' readme.md
+
+      - name: Create a development branch and commit changes to the repo
+        env:
+          name: 👾 SaltBot
+          email: noreply@salt.dev
+          message: Good luck and have fun!
+        run: |
+          git config --global user.name '${{ env.name }}'
+          git config --global user.email '${{ env.email }}'
+          git add -A
+          git commit -m "${{ env.message }}"
+          git branch dev
+          git push origin main
+          git push origin dev
