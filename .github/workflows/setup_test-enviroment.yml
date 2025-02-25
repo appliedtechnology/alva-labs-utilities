@@ -6,25 +6,33 @@ on:
       workflow-to-delete:
         type: string
         description: The workflow file to be deleted once the setup is complete
-        required: true
         default: "setup.yml"
-        
+
 jobs:
   setup:
     name: Create work branch
     runs-on: ubuntu-24.04
     permissions:
       contents: write
-      pull-requests: write
 
     steps:
+      - name: Check if current repo is a template
+        id: not-template
+        continue-on-error: true # Even if this is a template repo, we don't want this job to fail
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api repos/${{ github.repository }} | jq --exit-status '.is_template == false'
+
       - name: Checkout code
+        if: steps.not-template.outcome == 'success'
         uses: actions/checkout@v4
 
       - name: Delete workflow file
+        if: steps.not-template.outcome == 'success'
         run: rm .github/workflows/${{ inputs.workflow-to-delete }}
 
       - name: Create a development branch and commit changes to the repo
+        if: steps.not-template.outcome == 'success'
         env:
           name: 👾 SaltBot
           email: noreply@salt.dev
@@ -37,3 +45,4 @@ jobs:
           git branch dev
           git push origin main
           git push origin dev
+          
