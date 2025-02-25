@@ -10,6 +10,9 @@ on:
         description: A json array of the test results
         required: true
         default: "[]"
+    secrets:
+      AUTO_SCORE_TOKEN:
+        required: true
 
 jobs:
   send-to-alva:
