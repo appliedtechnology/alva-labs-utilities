@@ -21,13 +21,23 @@ jobs:
       pull-requests: write
 
     steps:
+      - name: Check if current repo is a template
+        id: not-template
+        continue-on-error: true # Even if this is a template repo, we don't want this job to fail
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh api repos/${{ github.repository }} | jq --exit-status '.is_template == false'
+
       - name: Checkout code
+        if: steps.not-template.outcome == 'success'
         uses: actions/checkout@v4
 
       - name: Delete workflow file
+        if: steps.not-template.outcome == 'success'
         run: rm .github/workflows/${{ inputs.workflow-to-delete }}
 
       - name: Update readme
+        if: steps.not-template.outcome == 'success'
         run: |
           sed -i -e '
             s#{{dev-branch}}#[Dev Branch](${{ github.server_url }}/${{github.repository}}/tree/dev)#
@@ -35,6 +45,7 @@ jobs:
           ' readme.md
 
       - name: Create a development branch and commit changes to the repo
+        if: steps.not-template.outcome == 'success'
         env:
           name: 👾 SaltBot
           email: noreply@salt.dev
