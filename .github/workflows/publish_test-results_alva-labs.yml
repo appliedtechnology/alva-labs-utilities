@@ -34,7 +34,7 @@ jobs:
           curl --retry 3 \
             --fail-with-body \
             -H "Authorization: Bearer ${{ secrets.AUTO_SCORE_TOKEN }}" \
-            --json '{ "assignmentRepository": "${{ github.repository }}", "results": [${{ inputs.test-results }}] }' \
+            --json "{ \"assignmentRepository\": \"${{ github.repository }}\", \"results\": [${{ inputs.test-results }}] }" \
             ${{ vars.AUTO_SCORE_WEBHOOK_URL }}
 
       - name: Add job summary to test taker

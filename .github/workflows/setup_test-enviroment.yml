@@ -33,6 +33,6 @@ jobs:
         run: |
           git config --global user.name '${{ env.name }}'
           git config --global user.email '${{ env.email }}'
-          git branch Submission
-          git push origin Submission
+          git branch submission
+          git push origin submission
           

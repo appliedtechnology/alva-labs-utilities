@@ -4,6 +4,11 @@ description: Workflow to generate JavaScript test results from a candidate's cod
 
 on:
   workflow_call:
+    inputs:
+      test-file-pattern:
+        type: string
+        description: The file pattern for the test files
+        default: '**/*.test.js'
     outputs:
       test-results:
         description: An array of the test results
@@ -13,7 +18,6 @@ jobs:
   javascript-test:
     runs-on: ubuntu-24.04
     timeout-minutes: 2
-    continue-on-error: true # We expect this job to fail, but still need the results to be published
 
     outputs:
       test_results: ${{ steps.get-results.outputs.test_results }}
@@ -28,9 +32,12 @@ jobs:
           node-version: 22
 
       - name: Run tests
-        run: node --test --test-reporter=./utils/json-reporter.js --test-reporter-destination=test-results.json **/*.test.js
+        continue-on-error: true
+        run: node --test --test-reporter=./utils/json-reporter.js --test-reporter-destination=test-results-raw.json ${{ inputs.test-file-pattern }}
+          
+      - name: Escape double quotes in the json-file
+        run: sed 's/"/\\"/g' test-results-raw.json > test-results-parsed.json
 
-      - name: Output test results
+      - name: Send test results to output
         id: get-results
-        if: ${{ !cancelled() }}
-        run: echo test_results=$(cat ./test-results.json) >> $GITHUB_OUTPUT
+        run: echo test_results=$(cat ./test-results-parsed.json) >> $GITHUB_OUTPUT
