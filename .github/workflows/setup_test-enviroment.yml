@@ -2,15 +2,10 @@ name: Setup code-test enviroment
 
 on:
   workflow_call:
-    inputs:
-      workflow-to-delete:
-        type: string
-        description: The workflow file to be deleted once the setup is complete
-        default: "setup.yml"
 
 jobs:
   setup:
-    name: Create work branch
+    name: Create submission branch
     runs-on: ubuntu-24.04
     permissions:
       contents: write
@@ -26,10 +21,8 @@ jobs:
       - name: Checkout code
         if: steps.not-template.outcome == 'success'
         uses: actions/checkout@v4
-
-      - name: Delete workflow file
-        if: steps.not-template.outcome == 'success'
-        run: rm .github/workflows/${{ inputs.workflow-to-delete }}
+        with:
+          sparse-checkout: .
 
       - name: Create a development branch and commit changes to the repo
         if: steps.not-template.outcome == 'success'
@@ -40,9 +33,6 @@ jobs:
         run: |
           git config --global user.name '${{ env.name }}'
           git config --global user.email '${{ env.email }}'
-          git add -A
-          git commit -m "${{ env.message }}"
-          git branch dev
-          git push origin main
-          git push origin dev
+          git branch Submission
+          git push origin Submission
           
