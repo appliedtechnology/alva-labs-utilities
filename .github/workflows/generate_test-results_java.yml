@@ -45,4 +45,4 @@ jobs:
                 )
               ) | { "test": .+@name, "result": .result } 
             ]' 
-          ) >> $GITHUB_OUTPUT
+          ) | sed 's/"/\\"/g' >> $GITHUB_OUTPUT
