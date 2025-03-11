@@ -12,9 +12,6 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 2
 
-    env:
-      TEST_RESULT_PATH: test-results
-
     outputs:
       test_results: ${{ steps.get-results.outputs.test_results }}
 
@@ -31,13 +28,13 @@ jobs:
 
       - name: Build & test
         continue-on-error: true # We don't wanna stress the test takers with errors
-        run: mvn test -DoutputDirectory=${{ env.TEST_RESULT_PATH }}
+        run: mvn test
 
       - name: Output test results
         id: get-results
         run: |
           echo test_results=$(
-            cat $(find ./${{ env.TEST_RESULT_PATH }}/*.xml -print -quit) | 
+            cat $(find ./target/surefire-reports/*.xml -print -quit) | 
             yq -p=xml -o=json '[ 
               .testsuite.testcase[] | (
                 with(select(has("failure"));
