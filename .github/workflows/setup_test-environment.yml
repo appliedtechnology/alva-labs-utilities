@@ -1,4 +1,4 @@
-name: Setup code-test enviroment
+name: Setup code-test environment
 
 on:
   workflow_call:
