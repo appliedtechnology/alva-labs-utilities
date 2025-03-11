@@ -1,0 +1,51 @@
+name: Generate Java test results
+
+on:
+  workflow_call:
+    outputs:
+      test-results:
+        description: An array of the test results
+        value: ${{ jobs.dotnet-test.outputs.test_results }}
+
+jobs:
+  dotnet-test:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 2
+
+    env:
+      TEST_RESULT_PATH: test-results
+
+    outputs:
+      test_results: ${{ steps.get-results.outputs.test_results }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+          cache: maven
+
+      - name: Build & test
+        continue-on-error: true # We don't wanna stress the test takers with errors
+        run: mvn test -DoutputDirectory=${{ env.TEST_RESULT_PATH }}
+
+      - name: Output test results
+        id: get-results
+        run: |
+          echo test_results=$(
+            cat $(find ./${{ env.TEST_RESULT_PATH }}/*.xml -print -quit) | 
+            yq -p=xml -o=json '[ 
+              .testsuite.testcase[] | (
+                with(select(has("failure"));
+                  .result = "failed"
+                ) |
+                with(select(.failure == null);
+                  .result = "passed"
+                )
+              ) | { "test": .+@name, "result": .result } 
+            ]' 
+          ) >> $GITHUB_OUTPUT
