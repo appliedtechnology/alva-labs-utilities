@@ -8,7 +8,7 @@ on:
         value: ${{ jobs.dotnet-test.outputs.test_results }}
 
 jobs:
-  dotnet-test:
+  java-test:
     runs-on: ubuntu-24.04
     timeout-minutes: 2
 
@@ -40,9 +40,12 @@ jobs:
                 with(select(has("failure"));
                   .result = "failed"
                 ) |
-                with(select(.failure == null);
+                with(select(has("error"));
+                  .result = "failed"
+                ) |
+                with(select(.failure == null and .error == null);
                   .result = "passed"
                 )
-              ) | { "test": .+@name, "result": .result } 
+              ) | { "test": .+@name, "result": .result }
             ]' 
           ) | sed 's/"/\\"/g' >> $GITHUB_OUTPUT
