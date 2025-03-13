@@ -5,7 +5,7 @@ on:
     outputs:
       test-results:
         description: An array of the test results
-        value: ${{ jobs.dotnet-test.outputs.test_results }}
+        value: ${{ jobs.java-test.outputs.test_results }}
 
 jobs:
   java-test:
