@@ -30,12 +30,22 @@ jobs:
           node-version: 22
 
       - name: Run tests
-        continue-on-error: true
-        run: node --test --test-reporter=./utils/json-reporter.js --test-reporter-destination=test-results-raw.json ${{ inputs.test-file-pattern }}
-          
-      - name: Escape double quotes in the json-file
-        run: sed 's/"/\\"/g' test-results-raw.json > test-results-parsed.json
+        continue-on-error: true # we don't wanna stress the test takers with errors
+        run: node --test --test-reporter=junit --test-reporter-destination=test-results.xml ${{ inputs.test-file-pattern }}
 
       - name: Send test results to output
         id: get-results
-        run: echo test_results=$(cat ./test-results-parsed.json) >> $GITHUB_OUTPUT
+        run: |
+          echo test_results=$(
+            cat $(find ./test-results.xml -print -quit) | 
+            yq -p=xml -o=json '[ 
+              .. | select(has("testcase")) | .testcase[] | ( # we traverse the whole xml recursively since "testcase" can be nested
+                with(select(length > 3); # if the item has extra children (eg. 'failure' or 'error'), tag it as failed
+                  .result = "failed"
+                ) |
+                with(select(length <= 3); # if the item has no extra children, tag it as passed
+                  .result = "passed"
+                )
+              ) | { "test": .+@name, "result": .result }
+            ]' 
+          ) | sed 's/"/\\"/g' >> $GITHUB_OUTPUT
