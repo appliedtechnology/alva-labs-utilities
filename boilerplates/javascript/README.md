@@ -31,7 +31,7 @@ Between 10 minutes and 45 minutes depending on how used you are to coding, plus 
 
 ### Info
 
-- All code should be written in the [./main.js](./main.js) file and inside the Main class. **Do not modify the other files.**
+- All code should be written in the [./main.js](./main.js) file. **Do not modify the other files.**
 - You will need to use [the terminal](https://www.w3schools.com/whatis/whatis_cli.asp) to run commands.
 - **After each step, we want you to do a [git commit](https://github.com/git-guides/git-commit)** to create a snapshot of your code
 - To submit your work, you till have to **push your code** to GitHub using [git push](https://github.com/git-guides/git-push), even if you are using GitHub Codespaces.
