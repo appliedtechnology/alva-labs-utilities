@@ -21,7 +21,7 @@ The submission workflow inside `publish-test-results.yml` calls on two other wor
 
 1. **Generate test results**
 
-    The test results need to be generated and converted to a json-array with the following schema
+    The test results need to be generated and converted to a JSON-array with the following schema
     
     ```json
     [
@@ -53,3 +53,25 @@ Since many of the test takers have never worked with GitHub before, we can help 
 ```
 
 A link back to Alva Labs is included in the body of the pull request
+
+## Additional info
+
+### Generating the test array
+
+The workflow use a tool included in GitHubs default runner image called [yq](https://mikefarah.gitbook.io/yq). It extracts the test results from XML and generates the required JSON file.
+
+Once the JSON has been generated, it's immediately escaped using [sed](https://www.gnu.org/software/sed/manual/sed.html) `sed 's/"/\\"/g'` since an unescaped JSON-array can cause issues for `curl` when we post the array to Alva Labs. Using single quotes with curl instead of escaping the array is not recommended since single quotes might appear in the test names.
+
+### Test names
+
+Alva Labs have a limited amount of space for displaying test names. So keep the display name of your tests short.
+
+### Links to Alva Labs own materials files
+
+Main GitHub organization: [DevSkillsHQ](https://github.com/DevSkillsHQ)
+
+- [Publish test results workflow](https://github.com/DevSkillsHQ/publish-test-results-workflow/blob/main/.github/workflows/publish-test-results.yml)
+- [Setup Boilerplate workflow](https://github.com/DevSkillsHQ/setup-boilerplate-workflow-test/blob/main/.github/workflows/setup-boilerplate.yml)
+  - [.NET backend boilerplate](https://github.com/DevSkillsHQ/backend-boilerplate-dotnet)
+  - [Express.js backend boilerplate](https://github.com/DevSkillsHQ/backend-boilerplate-expressjs)
+  - [Java Spring Boot boilerplate](https://github.com/DevSkillsHQ/backend-boilerplate-java-springboot-maven)
