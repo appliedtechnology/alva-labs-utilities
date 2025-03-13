@@ -1,0 +1,13 @@
+name: Setup test-environment
+
+on:
+  push:
+    paths:
+      - .github/workflows/setup.yml
+
+jobs:
+  setup:
+    permissions:
+      contents: write
+    name: Setup environment
+    uses: appliedtechnology/Alva-Labs-Utilities/.github/workflows/setup_test-environment.yml@main

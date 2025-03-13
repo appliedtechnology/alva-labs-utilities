@@ -1,6 +1,6 @@
-﻿using static HelloSalt.Solution;
+﻿using static SaltCodeTest.Solution;
 
-namespace HelloSalt;
+namespace SaltCodeTest;
 
 public class Tests
 {
@@ -12,15 +12,5 @@ public class Tests
 
     // Assert
     result.Should().Be("Hello World");
-  }
-
-  [Fact(DisplayName = "This should fail")]
-  public void HelloWord_Returns_GoodbyeWorld()
-  {
-    // Act
-    var result = HelloWord();
-
-    // Assert
-    result.Should().Be("Goodbye World");
   }
 }

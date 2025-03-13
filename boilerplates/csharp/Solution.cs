@@ -1,4 +1,4 @@
-namespace HelloSalt;
+namespace SaltCodeTest;
 
 public static class Solution
 {
