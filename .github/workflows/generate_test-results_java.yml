@@ -27,7 +27,7 @@ jobs:
           cache: maven
 
       - name: Build & test
-        continue-on-error: true # We don't wanna stress the test takers with errors
+        continue-on-error: true # we don't wanna stress the test takers with errors
         run: mvn test
 
       - name: Output test results
@@ -36,14 +36,11 @@ jobs:
           echo test_results=$(
             cat $(find ./target/surefire-reports/*.xml -print -quit) | 
             yq -p=xml -o=json '[ 
-              .testsuite.testcase[] | (
-                with(select(has("failure"));
+              .. | select(has("testcase")) | .testcase[] | ( # we traverse the whole xml recursively since "testcase" can be nested
+                with(select(length > 3); # if the item has extra children (eg. 'failure' or 'error'), tag it as failed
                   .result = "failed"
                 ) |
-                with(select(has("error"));
-                  .result = "failed"
-                ) |
-                with(select(.failure == null and .error == null);
+                with(select(length <= 3); # if the item has no extra children, tag it as passed
                   .result = "passed"
                 )
               ) | { "test": .+@name, "result": .result }
