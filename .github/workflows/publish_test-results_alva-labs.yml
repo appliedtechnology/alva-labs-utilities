@@ -39,7 +39,7 @@ jobs:
         if: steps.not-template.outcome == 'success'
         run: |
           echo "### Test results have been successfully sent out! :rocket:" >> $GITHUB_STEP_SUMMARY
-          echo "You can now go to [Alva Labs](https://app.alvalabs.io) and submit your test"  >> $GITHUB_STEP_SUMMARY
+          echo "You can now go to [Alva Labs](https://app.alvalabs.io/start/apply/298) and submit your test"  >> $GITHUB_STEP_SUMMARY
           echo "Good luck! :four_leaf_clover:" >> $GITHUB_STEP_SUMMARY
 
       - name: Add job summary to template creator
