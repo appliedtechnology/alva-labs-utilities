@@ -1,0 +1,24 @@
+name: Run tests and send results to Alva Labs
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: alva_test_results
+  cancel-in-progress: true
+
+jobs:
+  test:
+    name: Run tests
+    uses: appliedtechnology/Alva-Labs-Utilities/.github/workflows/generate_test-results_js.yml@main
+
+  publish:
+    name: Publish tests
+    needs: test
+    uses: appliedtechnology/Alva-Labs-Utilities/.github/workflows/publish_test-results_alva-labs.yml@main
+    with:
+      test-results: ${{ needs.test.outputs.test-results }}
+    secrets:
+      AUTO_SCORE_TOKEN: ${{ secrets.AUTO_SCORE_TOKEN }}
