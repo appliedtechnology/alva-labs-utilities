@@ -1,7 +1,5 @@
 name: Publish test result to Alva Labs
 
-description: Workflow to publish generated test results from a candidate's code test to Alva Labs
-
 on:
   workflow_call:
     inputs:
