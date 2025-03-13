@@ -33,16 +33,8 @@ jobs:
 
       - name: Output test results
         id: get-results
-        if: ${{ !cancelled() }}
         run: |
           echo test_results=$(
             cat $(find ./TestResults/*.trx -print -quit) |
             yq -p=xml -o=json '[ .TestRun.Results.UnitTestResult[] | { "test": .+@testName, "result": .+@outcome } ]'
-          ) >> $GITHUB_OUTPUT
-
-      - name: Save cache
-        if: ${{ !cancelled() && steps.cache-restore.outputs.cache-hit != 'true' }}
-        uses: actions/cache/save@v4
-        with:
-          path: ${{ env.NUGET_PACKAGES }}
-          key: ${{ steps.cache-restore.outputs.cache-primary-key }}
+          ) | sed 's/"/\\"/g' >> $GITHUB_OUTPUT
