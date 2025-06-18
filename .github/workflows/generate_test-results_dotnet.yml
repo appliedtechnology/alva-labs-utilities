@@ -35,7 +35,7 @@ jobs:
         id: get-results
         run: |
           result=$(
-            cat $(find ./TestResults/*.trx -print -quit) |
+            cat $(find ./Greeter.Tests/TestResults -name '*.trx' -print -quit) |
             yq -p=xml -o=json '[ .TestRun.Results.UnitTestResult[] | { "test": .+@testName, "result": .+@outcome } ]'
           )
           echo "test_results=$result" >> $GITHUB_OUTPUT
