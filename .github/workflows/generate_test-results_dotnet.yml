@@ -34,7 +34,8 @@ jobs:
       - name: Output test results
         id: get-results
         run: |
-          echo test_results=$(
+          result=$(
             cat $(find ./TestResults/*.trx -print -quit) |
             yq -p=xml -o=json '[ .TestRun.Results.UnitTestResult[] | { "test": .+@testName, "result": .+@outcome } ]'
-          ) | sed 's/"/\\"/g' >> $GITHUB_OUTPUT
+          )
+          echo "test_results=$result" >> $GITHUB_OUTPUT
