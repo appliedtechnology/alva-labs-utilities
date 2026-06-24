@@ -29,12 +29,12 @@ jobs:
 
       - name: Build & test
         continue-on-error: true # we don't wanna stress the test takers with errors
-        run: dotnet test --nologo -v:q --logger trx
+        run: dotnet test --nologo -v:q --logger "trx;LogFileName=test-results.trx" --results-directory ./test-results
 
       - name: Output test results
         id: get-results
         run: |
           echo test_results=$(
-            cat $(find ./Greeter.Tests/TestResults/*.trx -print -quit) |
+            cat $(find ./test-results/*.trx -print -quit) |
             yq -p=xml -o=json '[ .TestRun.Results.UnitTestResult[] | { "test": .+@testName, "result": .+@outcome } ]'
           ) | sed 's/"/\\"/g' >> $GITHUB_OUTPUT
